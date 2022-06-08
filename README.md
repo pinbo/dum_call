@@ -11,13 +11,13 @@ tar -xf htslib-1.15.1.tar.bz2
 cd htslib-1.15.1
 
 # Step 2: compile it based on the instruction
-./configure    # Optional but recommended, for choosing extra functionality
+./configure --disable-libcurl    # you can disable more. Refer the file INSTALL
 make
 
 # Step 3: get dum_call
 git clone https://github.com/pinbo/dum_call.git
 cd dub_call
-gcc -Wall -g -O2 dum_call.c -o dum_call ../libhts.a -lz -lm -llzma -lcurl -lcrypto -lbz2
+gcc -Wall -g -O2 dum_call.c -o dum_call ../libhts.a -lz -lm -llzma -lbz2 -lpthread
 # to see the help
 ./dum_call
 ```
