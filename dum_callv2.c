@@ -655,7 +655,7 @@ int main (int argc, char **argv)
     fprintf(stderr, "[E::%s] Out of memory allocating BAM struct.\n", __func__);
     goto fail;
   }
-    if (ftype == FBAM && optind + 2 <= argc) {//BAM input and has a region.
+  if (ftype == FBAM && optind + 2 <= argc) {//BAM input and has a region.
     if ((idx = sam_index_load(in, argv[optind])) == 0) {
       fprintf(stderr, "[E::%s] fail to load the index for'%s'\n", __func__, argv[optind]);
       goto fail;
