@@ -16,7 +16,7 @@
 // snp_indel_check_v2: add depth and pct
 
 // to compile
-// gcc -Wall -g -O2 dumm_call.c -o dumm_call ../libhts.a -lz -lm -llzma -lcurl -lcrypto -lbz2
+// gcc -Wall -g -O2 dum_call.c -o dum_call ../libhts.a -lz -lm -llzma -lcurl -lcrypto -lbz2
 
 // typedef kvec_t(int) kvecn; // int or char vector
 // typedef kvec_t(char *) kvecs; // string vector
