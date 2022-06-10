@@ -698,13 +698,11 @@ int main (int argc, char **argv)
     }
     kh_clear(str, h); // reset for next file
     // reset depth to 0
-    fprintf(stderr, "reset depth\n");
     if (fh != NULL){
       for (k = 0; k < kh_end(dh); ++k)
         if (kh_exist(dh, k)){
           int *vv = kh_val(dh, k);
           int nn = vv[0]; // vv[0] is the length of the vector
-          // fprintf(stderr, "vvn is %d\n", nn);
           // memset(vv, 0, nn); // not working
           for (int i = 1; i < nn; i++) vv[i] = 0;
         }
