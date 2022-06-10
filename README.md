@@ -27,4 +27,5 @@ gcc -Wall -g -O2 dum_call.c -o dum_call ../libhts.a -lz -lm -llzma -lbz2 -lpthre
 
 ## Update
 
+- 2022-06-10: added dum_callm.c to call multiple bam/sam files at one time.
 - 2022-06-09: added dum_callv2.c that can read just a region of an indexed bam.
