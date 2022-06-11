@@ -356,7 +356,7 @@ int * parse_cigar2(bam1_t *b,  int same_strand){
 // fn parse_line (line: &str, map: &mut HashMap<String, isize>, no_small_indels: bool, debug: bool) 
 int parse_line(bam1_t *b, sam_hdr_t *hdr, khash_t(str) *h, int debug, khash_t(fasta) *fh, khash_t(dep) *dh, int no_snp_call){
   // int *ff, n, i;
-  int n, i, r=0;
+  int n, i; //, r=0;
   const bam1_core_t *c = &b->core;
   // char *line = ks->s;
   // ff = ksplit(ks, '\t', &n);
@@ -366,15 +366,17 @@ int parse_line(bam1_t *b, sam_hdr_t *hdr, khash_t(str) *h, int debug, khash_t(fa
   char *chrom = hdr->target_name[c->tid];
   int pos  = c->pos; // 0 based
   // char *cigar  = ks->s + ff[5];
-  kstring_t kcigar = { 0, 0, NULL };
+  int noH = 1;
+  // kstring_t kcigar = { 0, 0, NULL };
   if (c->n_cigar) { // cigar
     uint32_t *cigarp = bam_get_cigar(b);
     for (i = 0; i < c->n_cigar; ++i) {
-        r |= kputw(bam_cigar_oplen(cigarp[i]), &kcigar);
-        r |= kputc_(bam_cigar_opchr(cigarp[i]), &kcigar);
+        // r |= kputw(bam_cigar_oplen(cigarp[i]), &kcigar);
+        // r |= kputc_(bam_cigar_opchr(cigarp[i]), &kcigar);
+        if (bam_cigar_opchr(cigarp[i]) == 'H') noH = 0;
     }
   } else return 0; // r |= kputc_('*', &kcigar);
-  char *cigar = kcigar.s;
+  // char *cigar = kcigar.s;
   // get read sequence
   uint8_t *q = bam_get_seq(b);
   uint32_t read_len = b->core.l_qseq; //length of the read.
@@ -411,7 +413,7 @@ int parse_line(bam1_t *b, sam_hdr_t *hdr, khash_t(str) *h, int debug, khash_t(fa
   uint8_t *sa_info = bam_aux_get(b, "SA"); // sa_info + 1 will be the information
 
   // big deletions or inversions
-  if (sa_info != NULL && strstr(cigar, "H") == NULL){
+  if (sa_info && noH){
     // char *sa_info = ks->s + ff[i];
     // char *token = strtok(sa_info, ":"); // first string
     // token = strtok(NULL, ":"); // 2nd string
@@ -441,7 +443,7 @@ int parse_line(bam1_t *b, sam_hdr_t *hdr, khash_t(str) *h, int debug, khash_t(fa
         fprintf(stderr, "all_pos1: [%d, %d, %d, %d]\n", all_pos1[0], all_pos1[1], all_pos1[2], all_pos1[3]);
         fprintf(stderr, "all_pos2: [%d, %d, %d, %d]\n", all_pos2[0], all_pos2[1], all_pos2[2], all_pos2[3]);
       }
-      if (all_pos1[0] > all_pos2[1] || all_pos1[3] >= all_pos2[2] || all_pos1[1] >= all_pos2[1]) {free(s.s); return 0;}
+      if (all_pos1[0] > all_pos2[1] || all_pos1[3] >= all_pos2[2] || all_pos1[1] >= all_pos2[1]) goto fail;//{free(s.s); return 0;}
       int read_pos1 = all_pos1[1];
       int ref_pos1  = all_pos1[3];
       int read_pos2 = all_pos2[0];
@@ -450,8 +452,9 @@ int parse_line(bam1_t *b, sam_hdr_t *hdr, khash_t(str) *h, int debug, khash_t(fa
       int del_end_pos = ref_pos2 + shift;
       if (ref_pos1 < del_end_pos) {
         if (read_pos2+shift+1 > read_len) {
-            free(s.s);
-            return 0;
+          goto fail;
+          // free(s.s);
+          // return 0;
         }
         char alt_seq[read_pos2+shift+1-read_pos1];
         slice(read_seq, alt_seq, read_pos1, read_pos2+shift+1);
@@ -523,9 +526,10 @@ int parse_line(bam1_t *b, sam_hdr_t *hdr, khash_t(str) *h, int debug, khash_t(fa
       }
     }
     // free strings
-    free(s.s);
+    fail:
+      free(s.s);
   }
-
+  free(read_seq);
   return 0;
 }
 
